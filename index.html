@@ -108,16 +108,8 @@
 
   <script>
     let activeShift = 'AM', activeDay = '1';
+    const limits = { do: { min: 5.0 }, temp: { min: 28.0, max: 32.0 }, salinity: { min: 32.0, max: 36.0 }, ph: { min: 8.1, max: 8.5 } };
     
-    // Exact safe operational parameters requested
-    const limits = { 
-      do: { min: 5.0 }, 
-      temp: { min: 28.0, max: 32.0 }, 
-      salinity: { min: 32.0, max: 36.0 }, 
-      ph: { min: 8.1, max: 8.5 } 
-    };
-    
-    // Mapped strictly to your Front, Middle, and Back configurations over the 5-day timeline
     const schedule = {
       "1": { front: [4, 6, 8], middle: [24, 25, 26, 27], back: [44, 45, 46, 47] },
       "2": { front: [10, 11, 12], middle: [28, 29, 30, 31], back: [48, 49, 50, 51] },
@@ -146,23 +138,18 @@
       document.getElementById('btn-shift-pm').className = shift === 'PM' ? 'px-4 py-1 rounded-lg text-xs font-black transition-all bg-white text-slate-900 shadow-sm' : 'px-4 py-1 rounded-lg text-xs font-black transition-all text-slate-500 hover:text-slate-800';
     }
 
-    function changeDay() { 
-      activeDay = document.getElementById('day-select').value; 
-      renderActiveTables(); 
-    }
+    function changeDay() { activeDay = document.getElementById('day-select').value; renderActiveTables(); }
 
     function renderActiveTables() {
-      const container = document.getElementById('tables-container'); 
-      container.innerHTML = '';
-      
+      const container = document.getElementById('tables-container'); container.innerHTML = '';
       ['front', 'middle', 'back'].forEach(secKey => {
         let rowsHTML = schedule[activeDay][secKey].map(tank => `
           <tr class="border-b border-slate-100 hover:bg-slate-50/40 transition-colors">
             <td class="px-4 py-2.5 font-bold text-xs text-slate-700 capitalize">${secKey} Tank ${tank}</td>
-            <td class="px-2 py-1"><input type="number" step="0.01" oninput="runCalculations('${secKey}')" data-sec="${secKey}" data-metric="do" placeholder="-" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-1.5 text-xs text-center focus:outline-none focus:border-blue-500 transition-all"></td>
-            <td class="px-2 py-1"><input type="number" step="0.01" oninput="runCalculations('${secKey}')" data-sec="${secKey}" data-metric="temp" placeholder="-" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-1.5 text-xs text-center focus:outline-none focus:border-blue-500 transition-all"></td>
-            <td class="px-2 py-1"><input type="number" step="0.01" oninput="runCalculations('${secKey}')" data-sec="${secKey}" data-metric="salinity" placeholder="-" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-1.5 text-xs text-center focus:outline-none focus:border-blue-500 transition-all"></td>
-            <td class="px-2 py-1"><input type="number" step="0.01" oninput="runCalculations('${secKey}')" data-sec="${secKey}" data-metric="ph" placeholder="-" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-1.5 text-xs text-center focus:outline-none focus:border-blue-500 transition-all"></td>
+            <td class="px-2 py-1"><input type="number" step="0.01" oninput="runCalculations('${secKey}')" data-sec="${secKey}" data-metric="do" placeholder="-" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-1.5 text-xs text-center focus:outline-none"></td>
+            <td class="px-2 py-1"><input type="number" step="0.1" oninput="runCalculations('${secKey}')" data-sec="${secKey}" data-metric="temp" placeholder="-" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-1.5 text-xs text-center focus:outline-none"></td>
+            <td class="px-2 py-1"><input type="number" step="1" oninput="runCalculations('${secKey}')" data-sec="${secKey}" data-metric="salinity" placeholder="-" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-1.5 text-xs text-center focus:outline-none"></td>
+            <td class="px-2 py-1"><input type="number" step="0.1" oninput="runCalculations('${secKey}')" data-sec="${secKey}" data-metric="ph" placeholder="-" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-1.5 text-xs text-center focus:outline-none"></td>
           </tr>`).join('');
 
         container.innerHTML += `
@@ -175,11 +162,7 @@
               <table class="w-full min-w-[480px] text-left border-collapse">
                 <thead>
                   <tr class="bg-slate-100/30 border-b border-slate-100 text-[10px] font-black text-slate-400 uppercase tracking-wider">
-                    <th class="px-4 py-2 w-1/5">Tank Unit</th>
-                    <th class="px-2 py-2 text-center w-1/5">DO (mg/L)</th>
-                    <th class="px-2 py-2 text-center w-1/5">Temp (°C)</th>
-                    <th class="px-2 py-2 text-center w-1/5">Salinity (ppt)</th>
-                    <th class="px-2 py-2 text-center w-1/5">pH</th>
+                    <th class="px-4 py-2 w-1/5">Tank Unit</th><th class="px-2 py-2 text-center">DO (mg/L)</th><th class="px-2 py-2 text-center">Temp (°C)</th><th class="px-2 py-2 text-center">Salinity (ppt)</th><th class="px-2 py-2 text-center">pH</th>
                   </tr>
                 </thead>
                 <tbody>${rowsHTML}</tbody>
@@ -191,7 +174,7 @@
                     <td class="px-2 py-3 text-center text-blue-700 font-black" id="avg-${secKey}-salinity">-</td>
                     <td class="px-2 py-3 text-center text-blue-700 font-black" id="avg-${secKey}-ph">-</td>
                   </tr>
-                </tfoot>
+                </footer>
               </table>
             </div>
           </div>`;
@@ -209,8 +192,6 @@
           if (!isNaN(val)) {
             sum += val; count++;
             let unsafe = false;
-            
-            // Check boundaries
             if (metric === 'do' && val < limits.do.min) unsafe = true;
             if (metric === 'temp' && (val < limits.temp.min || val > limits.temp.max)) unsafe = true;
             if (metric === 'salinity' && (val < limits.salinity.min || val > limits.salinity.max)) unsafe = true;
@@ -224,8 +205,16 @@
             }
           }
         });
+        
         const el = document.getElementById(`avg-${secKey}-${metric}`);
-        el.innerText = count > 0 ? (sum / count).toFixed(2) : '-';
+        if (count > 0) {
+          const avg = sum / count;
+          if (metric === 'salinity') el.innerText = avg.toFixed(0);
+          else if (metric === 'temp' || metric === 'ph') el.innerText = avg.toFixed(1);
+          else el.innerText = avg.toFixed(2);
+        } else {
+          el.innerText = '-';
+        }
       });
       
       const alertSummary = document.getElementById('alert-summary');
@@ -272,10 +261,7 @@
         document.getElementById('submit-btn').disabled = false;
         fetchCloudLogs();
       })
-      .catch(() => { 
-        alert("Transmission error. Please verify network or key configurations."); 
-        document.getElementById('submit-btn').disabled = false; 
-      });
+      .catch(() => { alert("Transmission error. Please verify network or key configurations."); document.getElementById('submit-btn').disabled = false; });
     }
 
     function fetchCloudLogs() {
