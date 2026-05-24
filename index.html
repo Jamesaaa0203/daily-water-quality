@@ -15,10 +15,10 @@
   <header class="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-slate-200 px-4 py-3">
     <div class="max-w-5xl mx-auto flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
       <div class="flex items-center space-x-2.5">
-        <div class="bg-blue-600 text-white p-2.5 rounded-xl font-black text-lg tracking-wider shadow-md shadow-blue-600/10">WQ</div>
+        <div class="bg-blue-600 text-white p-2.5 rounded-xl font-black text-lg shadow-md">WQ</div>
         <div>
           <h1 class="text-xl font-black tracking-tight text-slate-900">Daily water quality data</h1>
-          <p class="text-xs text-slate-500 font-medium">Bon Aqua Production Logging Terminal</p>
+          <p class="text-xs text-slate-500 font-medium">Production Facility Shared Dashboard</p>
         </div>
       </div>
       <div class="text-xs font-bold text-slate-600 bg-slate-100 px-3 py-2 rounded-xl border border-slate-200" id="date-display">Date</div>
@@ -29,44 +29,43 @@
 
     <div class="grid grid-cols-2 gap-2 bg-white p-1.5 rounded-2xl border border-slate-200 shadow-sm max-w-sm">
       <button onclick="switchTab('entry')" id="tab-entry" class="py-2 rounded-xl text-xs font-black transition-all bg-emerald-600 text-white shadow-sm">Data Entry</button>
-      <button onclick="switchTab('history')" id="tab-history" class="py-2 rounded-xl text-xs font-black transition-all text-slate-500 hover:text-slate-800">Review Logs (7 Days)</button>
+      <button onclick="switchTab('history')" id="tab-history" class="py-2 rounded-xl text-xs font-black transition-all text-slate-500 hover:text-slate-800">Live Cloud Logs</button>
     </div>
 
-    <div id="controls-banner" class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex flex-col md:flex-row gap-4 items-start md:items-center justify-between">
+    <div id="controls-banner" class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex flex-col md:flex-row gap-4 justify-between items-start md:items-center">
       <div class="flex flex-wrap gap-3 items-center">
         <div class="flex flex-col">
           <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Active Schedule Day</label>
-          <select id="day-select" onchange="changeDay()" class="bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs font-bold text-slate-700 focus:outline-none focus:border-blue-500">
-            <option value="1">Day 1 Schedule</option>
-            <option value="2">Day 2 Schedule</option>
-            <option value="3">Day 3 Schedule</option>
-            <option value="4">Day 4 Schedule</option>
-            <option value="5">Day 5 Schedule</option>
+          <select id="day-select" onchange="changeDay()" class="bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs font-bold text-slate-700 focus:outline-none">
+            <option value="1">Day 1 Rotation</option>
+            <option value="2">Day 2 Rotation</option>
+            <option value="3">Day 3 Rotation</option>
+            <option value="4">Day 4 Rotation</option>
+            <option value="5">Day 5 Rotation</option>
           </select>
         </div>
         <div class="flex flex-col">
           <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Monitoring Shift</label>
           <div class="bg-slate-100 p-1 rounded-xl border flex">
-            <button onclick="setShift('AM')" id="btn-shift-am" class="px-4 py-1 rounded-lg text-xs font-black transition-all bg-white text-slate-900 shadow-sm">AM</button>
-            <button onclick="setShift('PM')" id="btn-shift-pm" class="px-4 py-1 rounded-lg text-xs font-black transition-all text-slate-500 hover:text-slate-800">PM</button>
+            <button type="button" onclick="setShift('AM')" id="btn-shift-am" class="px-4 py-1 rounded-lg text-xs font-black bg-white text-slate-900 shadow-sm">AM CHECK</button>
+            <button type="button" onclick="setShift('PM')" id="btn-shift-pm" class="px-4 py-1 rounded-lg text-xs font-black text-slate-500 hover:text-slate-800">PM CHECK</button>
           </div>
         </div>
       </div>
-      <div class="text-xs text-slate-500 bg-blue-50/50 p-3 rounded-xl border border-blue-100 max-w-sm">
-        💡 <strong>Tip:</strong> Leaving a tank input blank represents a skipped tank. It will automatically be skipped in section averages safely.
+      <div class="w-full max-w-md">
+        <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Google Webhook Deployment URL</label>
+        <input type="password" id="script-url-input" placeholder="Paste your generated Web App /exec URL key here..." onchange="saveScriptUrl()" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-1.5 text-xs text-slate-700 focus:outline-none focus:border-blue-500 transition-colors">
       </div>
     </div>
 
     <div id="content-entry" class="space-y-6">
-      <form onsubmit="saveShiftLog(event)" class="space-y-6">
+      <form onsubmit="submitWaterData(event)" class="space-y-6">
         <div id="tables-container" class="space-y-6"></div>
 
         <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex flex-col sm:flex-row justify-between items-center gap-3">
-          <div id="alert-summary" class="text-xs font-semibold text-slate-500">
-            All current entries inside safe operational limits.
-          </div>
-          <button type="submit" class="w-full sm:w-auto bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-black px-6 py-3 rounded-xl text-xs uppercase tracking-wider shadow-md transition-all">
-            Lock & Log Section Averages
+          <div id="alert-summary" class="text-xs font-semibold text-slate-500">Awaiting parameter input logs...</div>
+          <button type="submit" id="submit-btn" class="w-full sm:w-auto bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-black px-6 py-3 rounded-xl text-xs uppercase tracking-wider shadow-md transition-all">
+            Transmit Shift to Cloud Sheet
           </button>
         </div>
       </form>
@@ -76,12 +75,11 @@
       <div class="bg-white p-5 rounded-3xl border border-slate-200 shadow-sm space-y-4">
         <div class="flex justify-between items-center border-b pb-3">
           <div>
-            <h3 class="text-base font-black text-slate-900">Calculated Section Averages</h3>
-            <p class="text-xs text-slate-500">Select rows to copy paste directly into your main spreadsheets tracker.</p>
+            <h3 class="text-base font-black text-slate-900">Shared Averages Registry</h3>
+            <p id="history-status" class="text-xs text-slate-400 font-medium">Please add a Webhook link to stream history logs.</p>
           </div>
-          <button onclick="clear7DayHistory()" class="text-xs text-rose-600 font-bold bg-rose-50 px-3 py-1.5 rounded-xl border border-rose-100 hover:bg-rose-100 transition-all">Clear History</button>
+          <button onclick="fetchCloudLogs()" class="text-xs text-blue-600 font-bold bg-blue-50 px-3 py-1.5 rounded-xl border border-blue-100 hover:bg-blue-100 transition-all">🔄 Refresh Cloud</button>
         </div>
-
         <div class="overflow-x-auto">
           <table class="w-full text-left border-collapse min-w-[650px]">
             <thead>
@@ -95,28 +93,31 @@
                 <th class="px-2 py-2.5 text-center">Avg pH</th>
               </tr>
             </thead>
-            <tbody id="history-rows-container" class="text-xs">
-              </tbody>
+            <tbody id="history-rows-container" class="text-xs text-slate-700">
+              <tr><td colspan="7" class="text-center py-8 text-slate-400">Enter a Google Script deployment URL to sync history files live.</td></tr>
+            </tbody>
           </table>
         </div>
       </div>
     </div>
-
   </main>
 
+  <footer class="bg-white border-t border-slate-200 py-4 text-center text-xs text-slate-400">
+    Automated Parameter Averaging Portal • Enforcing Precision Aquaculture Layouts
+  </footer>
+
   <script>
-    let activeShift = 'AM';
-    let activeDay = '1';
-
-    // Strict Safe Threshold Limits requested
-    const limits = {
-      do: { min: 5.0 },
-      temp: { min: 28.0, max: 32.0 },
-      salinity: { min: 32.0, max: 36.0 },
-      ph: { min: 8.1, max: 8.5 }
+    let activeShift = 'AM', activeDay = '1';
+    
+    // Exact safe operational parameters requested
+    const limits = { 
+      do: { min: 5.0 }, 
+      temp: { min: 28.0, max: 32.0 }, 
+      salinity: { min: 32.0, max: 36.0 }, 
+      ph: { min: 8.1, max: 8.5 } 
     };
-
-    // Your complete 5-day scheduled rotation matrix mapped strictly to your sections
+    
+    // Mapped strictly to your Front, Middle, and Back configurations over the 5-day timeline
     const schedule = {
       "1": { front: [4, 6, 8], middle: [24, 25, 26, 27], back: [44, 45, 46, 47] },
       "2": { front: [10, 11, 12], middle: [28, 29, 30, 31], back: [48, 49, 50, 51] },
@@ -127,9 +128,17 @@
 
     window.onload = function() {
       document.getElementById('date-display').innerText = new Date().toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' });
+      if (localStorage.getItem('wq_script_url')) {
+        document.getElementById('script-url-input').value = localStorage.getItem('wq_script_url');
+      }
       renderActiveTables();
-      renderHistoryTable();
+      fetchCloudLogs();
     };
+
+    function saveScriptUrl() {
+      localStorage.setItem('wq_script_url', document.getElementById('script-url-input').value.trim());
+      fetchCloudLogs();
+    }
 
     function setShift(shift) {
       activeShift = shift;
@@ -137,43 +146,35 @@
       document.getElementById('btn-shift-pm').className = shift === 'PM' ? 'px-4 py-1 rounded-lg text-xs font-black transition-all bg-white text-slate-900 shadow-sm' : 'px-4 py-1 rounded-lg text-xs font-black transition-all text-slate-500 hover:text-slate-800';
     }
 
-    function changeDay() {
-      activeDay = document.getElementById('day-select').value;
-      renderActiveTables();
+    function changeDay() { 
+      activeDay = document.getElementById('day-select').value; 
+      renderActiveTables(); 
     }
 
     function renderActiveTables() {
-      const container = document.getElementById('tables-container');
+      const container = document.getElementById('tables-container'); 
       container.innerHTML = '';
       
-      const sections = ['front', 'middle', 'back'];
-      const dayData = schedule[activeDay];
-
-      sections.forEach(secKey => {
-        const tankList = dayData[secKey];
-        let rowsHTML = '';
-
-        tankList.forEach(tank => {
-          rowsHTML += `
-            <tr class="border-b border-slate-100 hover:bg-slate-50/40 transition-all">
-              <td class="px-4 py-2.5 font-bold text-xs text-slate-700 capitalize">${secKey} Tank ${tank}</td>
-              <td class="px-2 py-1"><input type="number" step="0.01" oninput="runCalculations('${secKey}')" data-sec="${secKey}" data-metric="do" placeholder="-" class="w-full bg-slate-50 border rounded-xl p-1.5 text-xs text-center focus:outline-none focus:border-blue-500 transition-all"></td>
-              <td class="px-2 py-1"><input type="number" step="0.01" oninput="runCalculations('${secKey}')" data-sec="${secKey}" data-metric="temp" placeholder="-" class="w-full bg-slate-50 border rounded-xl p-1.5 text-xs text-center focus:outline-none focus:border-blue-500 transition-all"></td>
-              <td class="px-2 py-1"><input type="number" step="0.01" oninput="runCalculations('${secKey}')" data-sec="${secKey}" data-metric="salinity" placeholder="-" class="w-full bg-slate-50 border rounded-xl p-1.5 text-xs text-center focus:outline-none focus:border-blue-500 transition-all"></td>
-              <td class="px-2 py-1"><input type="number" step="0.01" oninput="runCalculations('${secKey}')" data-sec="${secKey}" data-metric="ph" placeholder="-" class="w-full bg-slate-50 border rounded-xl p-1.5 text-xs text-center focus:outline-none focus:border-blue-500 transition-all"></td>
-            </tr>`;
-        });
+      ['front', 'middle', 'back'].forEach(secKey => {
+        let rowsHTML = schedule[activeDay][secKey].map(tank => `
+          <tr class="border-b border-slate-100 hover:bg-slate-50/40 transition-colors">
+            <td class="px-4 py-2.5 font-bold text-xs text-slate-700 capitalize">${secKey} Tank ${tank}</td>
+            <td class="px-2 py-1"><input type="number" step="0.01" oninput="runCalculations('${secKey}')" data-sec="${secKey}" data-metric="do" placeholder="-" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-1.5 text-xs text-center focus:outline-none focus:border-blue-500 transition-all"></td>
+            <td class="px-2 py-1"><input type="number" step="0.01" oninput="runCalculations('${secKey}')" data-sec="${secKey}" data-metric="temp" placeholder="-" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-1.5 text-xs text-center focus:outline-none focus:border-blue-500 transition-all"></td>
+            <td class="px-2 py-1"><input type="number" step="0.01" oninput="runCalculations('${secKey}')" data-sec="${secKey}" data-metric="salinity" placeholder="-" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-1.5 text-xs text-center focus:outline-none focus:border-blue-500 transition-all"></td>
+            <td class="px-2 py-1"><input type="number" step="0.01" oninput="runCalculations('${secKey}')" data-sec="${secKey}" data-metric="ph" placeholder="-" class="w-full bg-slate-50 border border-slate-200 rounded-xl p-1.5 text-xs text-center focus:outline-none focus:border-blue-500 transition-all"></td>
+          </tr>`).join('');
 
         container.innerHTML += `
           <div class="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden animate-fade">
-            <div class="p-3.5 bg-slate-50/80 border-b border-slate-100 flex justify-between items-center">
+            <div class="p-3.5 bg-slate-50/80 border-b flex justify-between items-center border-slate-100">
               <h3 class="text-xs font-black text-slate-900 uppercase tracking-wide">${secKey} Section</h3>
-              <span class="text-[10px] font-bold text-slate-400">Day ${activeDay} Allocation</span>
+              <span class="text-[10px] bg-blue-50 text-blue-700 px-2 py-0.5 rounded border border-blue-100 font-bold">Auto-Averaging</span>
             </div>
             <div class="overflow-x-auto">
               <table class="w-full min-w-[480px] text-left border-collapse">
                 <thead>
-                  <tr class="bg-slate-100/30 border-b text-[10px] font-black text-slate-400 uppercase tracking-wider">
+                  <tr class="bg-slate-100/30 border-b border-slate-100 text-[10px] font-black text-slate-400 uppercase tracking-wider">
                     <th class="px-4 py-2 w-1/5">Tank Unit</th>
                     <th class="px-2 py-2 text-center w-1/5">DO (mg/L)</th>
                     <th class="px-2 py-2 text-center w-1/5">Temp (°C)</th>
@@ -184,7 +185,7 @@
                 <tbody>${rowsHTML}</tbody>
                 <tfoot>
                   <tr class="bg-blue-50/20 font-bold border-t border-slate-200 text-xs">
-                    <td class="px-4 py-3 text-blue-900 font-extrabold uppercase">${secKey} Avg</td>
+                    <td class="px-4 py-3 text-blue-900 font-extrabold uppercase">Section Average</td>
                     <td class="px-2 py-3 text-center text-blue-700 font-black" id="avg-${secKey}-do">-</td>
                     <td class="px-2 py-3 text-center text-blue-700 font-black" id="avg-${secKey}-temp">-</td>
                     <td class="px-2 py-3 text-center text-blue-700 font-black" id="avg-${secKey}-salinity">-</td>
@@ -198,131 +199,123 @@
     }
 
     function runCalculations(secKey) {
-      const metrics = ['do', 'temp', 'salinity', 'ph'];
-      let globalAlertTriggered = false;
-
-      metrics.forEach(metric => {
+      let globalAlert = false;
+      ['do', 'temp', 'salinity', 'ph'].forEach(metric => {
         const inputs = document.querySelectorAll(`input[data-sec="${secKey}"][data-metric="${metric}"]`);
         let sum = 0, count = 0;
-
+        
         inputs.forEach(input => {
           const val = parseFloat(input.value);
           if (!isNaN(val)) {
-            sum += val;
-            count++;
-
-            // Strict Out-of-Threshold flag verification logic
-            let isUnsafe = false;
-            if (metric === 'do' && val < limits.do.min) isUnsafe = true;
-            if (metric === 'temp' && (val < limits.temp.min || val > limits.temp.max)) isUnsafe = true;
-            if (metric === 'salinity' && (val < limits.salinity.min || val > limits.salinity.max)) isUnsafe = true;
-            if (metric === 'ph' && (val < limits.ph.min || val > limits.ph.max)) isUnsafe = true;
-
-            if (isUnsafe) {
+            sum += val; count++;
+            let unsafe = false;
+            
+            // Check boundaries
+            if (metric === 'do' && val < limits.do.min) unsafe = true;
+            if (metric === 'temp' && (val < limits.temp.min || val > limits.temp.max)) unsafe = true;
+            if (metric === 'salinity' && (val < limits.salinity.min || val > limits.salinity.max)) unsafe = true;
+            if (metric === 'ph' && (val < limits.ph.min || val > limits.ph.max)) unsafe = true;
+            
+            if (unsafe) {
               input.className = "w-full bg-rose-50 border-rose-300 rounded-xl p-1.5 text-xs text-center font-bold text-rose-700 ring-2 ring-rose-200 focus:outline-none";
-              globalAlertTriggered = true;
+              globalAlert = true;
             } else {
               input.className = "w-full bg-slate-50 border border-slate-200 rounded-xl p-1.5 text-xs text-center focus:outline-none focus:border-blue-500 transition-all";
             }
           }
         });
-
-        const avgCell = document.getElementById(`avg-${secKey}-${metric}`);
-        if (count > 0) {
-          avgCell.innerText = (sum / count).toFixed(2);
-        } else {
-          avgCell.innerText = '-';
-        }
+        const el = document.getElementById(`avg-${secKey}-${metric}`);
+        el.innerText = count > 0 ? (sum / count).toFixed(2) : '-';
       });
-
-      const indicator = document.getElementById('alert-summary');
-      if (globalAlertTriggered) {
-        indicator.innerText = "⚠️ ATTENTION: Some parameters are out of safe threshold limits! Please double-check the highlighted tanks.";
-        indicator.className = "text-xs font-black text-rose-600 animate-pulse";
+      
+      const alertSummary = document.getElementById('alert-summary');
+      if (globalAlert) {
+        alertSummary.innerText = "⚠️ ATTENTION: Highlighted parameters are outside of safe operational limits! Verify the tank fields.";
+        alertSummary.className = "text-xs font-black text-rose-600 animate-pulse";
       } else {
-        indicator.innerText = "✓ All entered readings are currently within safe thresholds.";
-        indicator.className = "text-xs font-semibold text-emerald-600";
+        alertSummary.innerText = "✓ All current values fall completely inside safe thresholds.";
+        alertSummary.className = "text-xs font-semibold text-emerald-600";
       }
     }
 
-    function saveShiftLog(e) {
-      e.preventDefault();
-      const dateStr = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
-      const zones = ['front', 'middle', 'back'];
-      
-      let localLogs = JSON.parse(localStorage.getItem('wq_7day_history')) || [];
+    function submitWaterData(event) {
+      event.preventDefault();
+      const url = localStorage.getItem('wq_script_url');
+      if (!url) { alert("Missing Configuration: Please paste your deployment URL into the top text box first."); return; }
 
-      zones.forEach(zone => {
-        const doVal = document.getElementById(`avg-${zone}-do`).innerText;
-        const tempVal = document.getElementById(`avg-${zone}-temp`).innerText;
-        const salVal = document.getElementById(`avg-${zone}-salinity`).innerText;
-        const phVal = document.getElementById(`avg-${zone}-ph`).innerText;
+      document.getElementById('alert-summary').innerText = "Transmitting metrics to secure database sheet...";
+      document.getElementById('submit-btn').disabled = true;
 
-        // Skip adding sections that don't have any filled data
-        if (doVal !== '-' || tempVal !== '-' || salVal !== '-' || phVal !== '-') {
-          localLogs.unshift({
-            date: dateStr,
-            shift: activeShift,
-            section: zone,
-            do: doVal,
-            temp: tempVal,
-            salinity: salVal,
-            ph: phVal,
-            timestamp: Date.now()
-          });
-        }
+      const payload = {
+        date: new Date().toLocaleDateString('en-US'),
+        time: new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }),
+        shift: activeShift,
+        sec_front_do: document.getElementById('avg-front-do').innerText,
+        sec_front_temp: document.getElementById('avg-front-temp').innerText,
+        sec_front_salinity: document.getElementById('avg-front-salinity').innerText,
+        sec_front_ph: document.getElementById('avg-front-ph').innerText,
+        sec_middle_do: document.getElementById('avg-middle-do').innerText,
+        sec_middle_temp: document.getElementById('avg-middle-temp').innerText,
+        sec_middle_salinity: document.getElementById('avg-middle-salinity').innerText,
+        sec_middle_ph: document.getElementById('avg-middle-ph').innerText,
+        sec_back_do: document.getElementById('avg-back-do').innerText,
+        sec_back_temp: document.getElementById('avg-back-temp').innerText,
+        sec_back_salinity: document.getElementById('avg-back-salinity').innerText,
+        sec_back_ph: document.getElementById('avg-back-ph').innerText
+      };
+
+      fetch(url, { method: 'POST', mode: 'no-cors', cache: 'no-cache', body: JSON.stringify(payload) })
+      .then(() => {
+        alert(`Shift data (${activeShift}) sent successfully! Section averages are now locked into Google Sheets.`);
+        document.querySelectorAll('input[data-metric]').forEach(i => i.value = '');
+        ['front', 'middle', 'back'].forEach(z => runCalculations(z));
+        document.getElementById('submit-btn').disabled = false;
+        fetchCloudLogs();
+      })
+      .catch(() => { 
+        alert("Transmission error. Please verify network or key configurations."); 
+        document.getElementById('submit-btn').disabled = false; 
       });
+    }
 
-      // Filter and enforce the rolling 7-day cutoff window limit roughly based on logs counts
-      if (localLogs.length > 42) { // 3 sections * 2 shifts * 7 days = 42 rows max
-        localLogs = localLogs.slice(0, 42);
-      }
-
-      localStorage.setItem('wq_7day_history', JSON.stringify(localLogs));
-      alert(`Shift dataset (${activeShift}) averages processed successfully! Loaded inside the Review Logs tab.`);
+    function fetchCloudLogs() {
+      const url = localStorage.getItem('wq_script_url');
+      if (!url) return;
+      document.getElementById('history-status').innerText = "Syncing live cloud fields...";
       
-      // Reset input layout sheets
-      document.querySelectorAll('input[data-metric]').forEach(i => i.value = '');
-      zones.forEach(z => runCalculations(z));
-      renderHistoryTable();
-    }
-
-    function renderHistoryTable() {
-      const container = document.getElementById('history-rows-container');
-      const logs = JSON.parse(localStorage.getItem('wq_7day_history')) || [];
-
-      if (logs.length === 0) {
-        container.innerHTML = `<tr><td colspan="7" class="text-center py-8 text-slate-400">No shift records held yet. Data averages will stack here for 7 days once submitted.</td></tr>`;
-        return;
-      }
-
-      container.innerHTML = logs.map(log => `
-        <tr class="border-b border-slate-150 hover:bg-slate-100/60 transition-colors odd:bg-slate-50/30">
-          <td class="px-4 py-3 font-semibold text-slate-700">${log.date}</td>
-          <td class="px-2 py-3"><span class="${log.shift === 'AM' ? 'text-amber-700 bg-amber-50 border-amber-200' : 'text-blue-700 bg-blue-50 border-blue-200'} border px-2 py-0.5 rounded text-[10px] font-bold">${log.shift}</span></td>
-          <td class="px-2 py-3 font-bold uppercase text-slate-600 text-[11px]">${log.section} Section</td>
-          <td class="px-2 py-3 text-center font-bold text-slate-900">${log.do}</td>
-          <td class="px-2 py-3 text-center font-bold text-slate-900">${log.temp}</td>
-          <td class="px-2 py-3 text-center font-bold text-slate-900">${log.salinity}</td>
-          <td class="px-2 py-3 text-center font-bold text-slate-900">${log.ph}</td>
-        </tr>
-      `).join('');
-    }
-
-    function clear7DayHistory() {
-      if (confirm("Are you sure you want to completely clear the 7-day cached log history?")) {
-        localStorage.removeItem('wq_7day_history');
-        renderHistoryTable();
-      }
+      fetch(url)
+      .then(res => res.json())
+      .then(data => {
+        const container = document.getElementById('history-rows-container');
+        if (data.length === 0) {
+          container.innerHTML = `<tr><td colspan="7" class="text-center py-6 text-slate-400">Master logs are empty. Submissions populate here.</td></tr>`;
+          return;
+        }
+        container.innerHTML = data.map(log => `
+          <tr class="border-b border-slate-150 hover:bg-slate-100/50 odd:bg-slate-50/10">
+            <td class="px-4 py-3 font-semibold text-slate-700">${log.date}</td>
+            <td class="px-2 py-3"><span class="${log.shift === 'AM' ? 'text-amber-700 bg-amber-50 border-amber-200' : 'text-blue-700 bg-blue-50 border-blue-200'} border px-2 py-0.5 rounded text-[10px] font-bold">${log.shift}</span></td>
+            <td class="px-2 py-3 font-bold uppercase text-slate-600 text-[11px]">${log.section} Section</td>
+            <td class="px-2 py-3 text-center font-bold text-slate-900">${log.do}</td>
+            <td class="px-2 py-3 text-center font-bold text-slate-900">${log.temp}</td>
+            <td class="px-2 py-3 text-center font-bold text-slate-900">${log.salinity}</td>
+            <td class="px-2 py-3 text-center font-bold text-slate-900">${log.ph}</td>
+          </tr>`).join('');
+        document.getElementById('history-status').innerText = "Live Master Database Synced ✓";
+        document.getElementById('history-status').className = "text-xs text-emerald-600 font-bold";
+      })
+      .catch(() => { 
+        document.getElementById('history-status').innerText = "Sync break. Verify web app execution access permissions."; 
+        document.getElementById('history-status').className = "text-xs text-rose-500 font-bold";
+      });
     }
 
     function switchTab(tabId) {
       document.getElementById('content-entry').classList.toggle('hidden', tabId !== 'entry');
       document.getElementById('content-history').classList.toggle('hidden', tabId !== 'history');
       document.getElementById('controls-banner').classList.toggle('hidden', tabId !== 'entry');
-
-      document.getElementById('tab-entry').className = tabId === 'entry' ? 'py-2 rounded-xl text-xs font-black transition-all bg-emerald-600 text-white shadow-sm' : 'py-2 rounded-xl text-xs font-black transition-all text-slate-500 hover:text-slate-800';
-      document.getElementById('tab-history').className = tabId === 'history' ? 'py-2 rounded-xl text-xs font-black transition-all bg-emerald-600 text-white shadow-sm' : 'py-2 rounded-xl text-xs font-black transition-all text-slate-500 hover:text-slate-800';
+      document.getElementById('tab-entry').className = tabId === 'entry' ? 'py-2 rounded-xl text-xs font-black bg-emerald-600 text-white shadow-sm' : 'py-2 rounded-xl text-xs font-black text-slate-500';
+      document.getElementById('tab-history').className = tabId === 'history' ? 'py-2 rounded-xl text-xs font-black bg-emerald-600 text-white shadow-sm' : 'py-2 rounded-xl text-xs font-black text-slate-500';
     }
   </script>
 </body>
