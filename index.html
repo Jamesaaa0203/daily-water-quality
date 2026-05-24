@@ -18,7 +18,7 @@
         <div class="bg-blue-600 text-white p-2.5 rounded-xl font-black text-lg shadow-md">WQ</div>
         <div>
           <h1 class="text-xl font-black tracking-tight text-slate-900">Daily water quality data</h1>
-          <p class="text-xs text-slate-500 font-medium">Production Facility Shared Dashboard</p>
+          <p class="text-xs text-slate-500 font-medium">Production Facility Secured Portal</p>
         </div>
       </div>
       <div class="text-xs font-bold text-slate-600 bg-slate-100 px-3 py-2 rounded-xl border border-slate-200" id="date-display">Date</div>
@@ -29,7 +29,7 @@
 
     <div class="grid grid-cols-2 gap-2 bg-white p-1.5 rounded-2xl border border-slate-200 shadow-sm max-w-sm">
       <button onclick="switchTab('entry')" id="tab-entry" class="py-2 rounded-xl text-xs font-black transition-all bg-emerald-600 text-white shadow-sm">Data Entry</button>
-      <button onclick="switchTab('history')" id="tab-history" class="py-2 rounded-xl text-xs font-black transition-all text-slate-500 hover:text-slate-800">Live Cloud Logs</button>
+      <button onclick="switchTab('history')" id="tab-history" class="py-2 rounded-xl text-xs font-black transition-all text-slate-500 hover:text-slate-800">Manager Dashboard</button>
     </div>
 
     <div id="controls-banner" class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex flex-col md:flex-row gap-4 justify-between items-start md:items-center">
@@ -47,7 +47,7 @@
         <div class="flex flex-col">
           <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Monitoring Shift</label>
           <div class="bg-slate-100 p-1 rounded-xl border flex">
-            <button type="button" onclick="setShift('AM')" id="btn-shift-am" class="px-4 py-1 rounded-lg text-xs font-black bg-white text-slate-900 shadow-sm">AM CHECK</button>
+            <button type="button" onclick="setShift('AM')" id="btn-shift-am" class="px-4 py-1 rounded-lg text-xs font-black transition-all bg-white text-slate-900 shadow-sm">AM CHECK</button>
             <button type="button" onclick="setShift('PM')" id="btn-shift-pm" class="px-4 py-1 rounded-lg text-xs font-black text-slate-500 hover:text-slate-800">PM CHECK</button>
           </div>
         </div>
@@ -61,7 +61,6 @@
     <div id="content-entry" class="space-y-6">
       <form onsubmit="submitWaterData(event)" class="space-y-6">
         <div id="tables-container" class="space-y-6"></div>
-
         <div class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex flex-col sm:flex-row justify-between items-center gap-3">
           <div id="alert-summary" class="text-xs font-semibold text-slate-500">Awaiting parameter input logs...</div>
           <button type="submit" id="submit-btn" class="w-full sm:w-auto bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-black px-6 py-3 rounded-xl text-xs uppercase tracking-wider shadow-md transition-all">
@@ -72,11 +71,23 @@
     </div>
 
     <div id="content-history" class="hidden space-y-4">
-      <div class="bg-white p-5 rounded-3xl border border-slate-200 shadow-sm space-y-4">
+      <div id="manager-auth-barrier" class="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm max-w-md mx-auto text-center space-y-4">
+        <div class="w-12 h-12 bg-rose-50 text-rose-600 border border-rose-100 rounded-full flex items-center justify-center mx-auto text-xl">🔒</div>
+        <div>
+          <h3 class="text-base font-black text-slate-900">Manager Verification Required</h3>
+          <p class="text-xs text-slate-400 mt-1">Enter the secure production passcode to view live historical logs.</p>
+        </div>
+        <input type="password" id="manager-pin-input" placeholder="Enter 4-Digit Manager PIN..." class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 text-sm text-center focus:outline-none focus:border-blue-500 tracking-widest font-bold">
+        <button onclick="fetchCloudLogs()" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-black py-2.5 rounded-xl text-xs uppercase tracking-wider transition-all">
+          Unlock Registry Logs
+        </button>
+      </div>
+
+      <div id="manager-table-display" class="hidden bg-white p-5 rounded-3xl border border-slate-200 shadow-sm space-y-4">
         <div class="flex justify-between items-center border-b pb-3">
           <div>
             <h3 class="text-base font-black text-slate-900">Shared Averages Registry</h3>
-            <p id="history-status" class="text-xs text-slate-400 font-medium">Please add a Webhook link to stream history logs.</p>
+            <p id="history-status" class="text-xs text-emerald-600 font-bold">Live Master Database Synced ✓</p>
           </div>
           <button onclick="fetchCloudLogs()" class="text-xs text-blue-600 font-bold bg-blue-50 px-3 py-1.5 rounded-xl border border-blue-100 hover:bg-blue-100 transition-all">🔄 Refresh Cloud</button>
         </div>
@@ -84,18 +95,10 @@
           <table class="w-full text-left border-collapse min-w-[650px]">
             <thead>
               <tr class="bg-slate-50 border-b border-slate-200 text-[10px] font-black text-slate-400 uppercase tracking-wider">
-                <th class="px-4 py-2.5">Date</th>
-                <th class="px-2 py-2.5">Shift</th>
-                <th class="px-2 py-2.5">Zone/Section</th>
-                <th class="px-2 py-2.5 text-center">Avg DO (mg/L)</th>
-                <th class="px-2 py-2.5 text-center">Avg Temp (°C)</th>
-                <th class="px-2 py-2.5 text-center">Avg Salinity (ppt)</th>
-                <th class="px-2 py-2.5 text-center">Avg pH</th>
+                <th class="px-4 py-2.5">Date</th><th class="px-2 py-2.5">Shift</th><th class="px-2 py-2.5">Zone/Section</th><th class="px-2 py-2.5 text-center">Avg DO (mg/L)</th><th class="px-2 py-2.5 text-center">Avg Temp (°C)</th><th class="px-2 py-2.5 text-center">Avg Salinity (ppt)</th><th class="px-2 py-2.5 text-center">Avg pH</th>
               </tr>
             </thead>
-            <tbody id="history-rows-container" class="text-xs text-slate-700">
-              <tr><td colspan="7" class="text-center py-8 text-slate-400">Enter a Google Script deployment URL to sync history files live.</td></tr>
-            </tbody>
+            <tbody id="history-rows-container" class="text-xs text-slate-700"></tbody>
           </table>
         </div>
       </div>
@@ -124,20 +127,14 @@
         document.getElementById('script-url-input').value = localStorage.getItem('wq_script_url');
       }
       renderActiveTables();
-      fetchCloudLogs();
     };
 
-    function saveScriptUrl() {
-      localStorage.setItem('wq_script_url', document.getElementById('script-url-input').value.trim());
-      fetchCloudLogs();
-    }
-
+    function saveScriptUrl() { localStorage.setItem('wq_script_url', document.getElementById('script-url-input').value.trim()); }
     function setShift(shift) {
       activeShift = shift;
       document.getElementById('btn-shift-am').className = shift === 'AM' ? 'px-4 py-1 rounded-lg text-xs font-black transition-all bg-white text-slate-900 shadow-sm' : 'px-4 py-1 rounded-lg text-xs font-black transition-all text-slate-500 hover:text-slate-800';
       document.getElementById('btn-shift-pm').className = shift === 'PM' ? 'px-4 py-1 rounded-lg text-xs font-black transition-all bg-white text-slate-900 shadow-sm' : 'px-4 py-1 rounded-lg text-xs font-black transition-all text-slate-500 hover:text-slate-800';
     }
-
     function changeDay() { activeDay = document.getElementById('day-select').value; renderActiveTables(); }
 
     function renderActiveTables() {
@@ -174,7 +171,7 @@
                     <td class="px-2 py-3 text-center text-blue-700 font-black" id="avg-${secKey}-salinity">-</td>
                     <td class="px-2 py-3 text-center text-blue-700 font-black" id="avg-${secKey}-ph">-</td>
                   </tr>
-                </footer>
+                </tfoot>
               </table>
             </div>
           </div>`;
@@ -186,7 +183,6 @@
       ['do', 'temp', 'salinity', 'ph'].forEach(metric => {
         const inputs = document.querySelectorAll(`input[data-sec="${secKey}"][data-metric="${metric}"]`);
         let sum = 0, count = 0;
-        
         inputs.forEach(input => {
           const val = parseFloat(input.value);
           if (!isNaN(val)) {
@@ -196,43 +192,28 @@
             if (metric === 'temp' && (val < limits.temp.min || val > limits.temp.max)) unsafe = true;
             if (metric === 'salinity' && (val < limits.salinity.min || val > limits.salinity.max)) unsafe = true;
             if (metric === 'ph' && (val < limits.ph.min || val > limits.ph.max)) unsafe = true;
-            
             if (unsafe) {
               input.className = "w-full bg-rose-50 border-rose-300 rounded-xl p-1.5 text-xs text-center font-bold text-rose-700 ring-2 ring-rose-200 focus:outline-none";
               globalAlert = true;
-            } else {
-              input.className = "w-full bg-slate-50 border border-slate-200 rounded-xl p-1.5 text-xs text-center focus:outline-none focus:border-blue-500 transition-all";
-            }
+            } else { input.className = "w-full bg-slate-50 border border-slate-200 rounded-xl p-1.5 text-xs text-center focus:outline-none focus:border-blue-500"; }
           }
         });
-        
         const el = document.getElementById(`avg-${secKey}-${metric}`);
         if (count > 0) {
           const avg = sum / count;
           if (metric === 'salinity') el.innerText = avg.toFixed(0);
           else if (metric === 'temp' || metric === 'ph') el.innerText = avg.toFixed(1);
           else el.innerText = avg.toFixed(2);
-        } else {
-          el.innerText = '-';
-        }
+        } else { el.innerText = '-'; }
       });
-      
-      const alertSummary = document.getElementById('alert-summary');
-      if (globalAlert) {
-        alertSummary.innerText = "⚠️ ATTENTION: Highlighted parameters are outside of safe operational limits! Verify the tank fields.";
-        alertSummary.className = "text-xs font-black text-rose-600 animate-pulse";
-      } else {
-        alertSummary.innerText = "✓ All current values fall completely inside safe thresholds.";
-        alertSummary.className = "text-xs font-semibold text-emerald-600";
-      }
+      document.getElementById('alert-summary').innerText = globalAlert ? "⚠️ ATTENTION: Highlighted parameters are outside of safe operational limits!" : "✓ All current values fall completely inside safe thresholds.";
+      document.getElementById('alert-summary').className = globalAlert ? "text-xs font-black text-rose-600 animate-pulse" : "text-xs font-semibold text-emerald-600";
     }
 
     function submitWaterData(event) {
       event.preventDefault();
       const url = localStorage.getItem('wq_script_url');
-      if (!url) { alert("Missing Configuration: Please paste your deployment URL into the top text box first."); return; }
-
-      document.getElementById('alert-summary').innerText = "Transmitting metrics to secure database sheet...";
+      if (!url) { alert("Missing Configuration URL."); return; }
       document.getElementById('submit-btn').disabled = true;
 
       const payload = {
@@ -255,26 +236,32 @@
 
       fetch(url, { method: 'POST', mode: 'no-cors', cache: 'no-cache', body: JSON.stringify(payload) })
       .then(() => {
-        alert(`Shift data (${activeShift}) sent successfully! Section averages are now locked into Google Sheets.`);
+        alert(`Shift data (${activeShift}) sent successfully! Saved to Google Sheets.`);
         document.querySelectorAll('input[data-metric]').forEach(i => i.value = '');
         ['front', 'middle', 'back'].forEach(z => runCalculations(z));
         document.getElementById('submit-btn').disabled = false;
-        fetchCloudLogs();
       })
-      .catch(() => { alert("Transmission error. Please verify network or key configurations."); document.getElementById('submit-btn').disabled = false; });
+      .catch(() => { alert("Transmission error."); document.getElementById('submit-btn').disabled = false; });
     }
 
     function fetchCloudLogs() {
       const url = localStorage.getItem('wq_script_url');
-      if (!url) return;
-      document.getElementById('history-status').innerText = "Syncing live cloud fields...";
-      
-      fetch(url)
+      const pin = document.getElementById('manager-pin-input').value.trim();
+      if (!url) { alert("Please configure the Webhook URL."); return; }
+
+      fetch(url + '?pin=' + encodeURIComponent(pin))
       .then(res => res.json())
       .then(data => {
+        if (data.error) {
+          alert(data.error);
+          return;
+        }
+        document.getElementById('manager-auth-barrier').classList.add('hidden');
+        document.getElementById('manager-table-display').classList.remove('hidden');
+        
         const container = document.getElementById('history-rows-container');
         if (data.length === 0) {
-          container.innerHTML = `<tr><td colspan="7" class="text-center py-6 text-slate-400">Master logs are empty. Submissions populate here.</td></tr>`;
+          container.innerHTML = `<tr><td colspan="7" class="text-center py-6 text-slate-400">Master logs are empty.</td></tr>`;
           return;
         }
         container.innerHTML = data.map(log => `
@@ -287,13 +274,8 @@
             <td class="px-2 py-3 text-center font-bold text-slate-900">${log.salinity}</td>
             <td class="px-2 py-3 text-center font-bold text-slate-900">${log.ph}</td>
           </tr>`).join('');
-        document.getElementById('history-status').innerText = "Live Master Database Synced ✓";
-        document.getElementById('history-status').className = "text-xs text-emerald-600 font-bold";
       })
-      .catch(() => { 
-        document.getElementById('history-status').innerText = "Sync break. Verify web app execution access permissions."; 
-        document.getElementById('history-status').className = "text-xs text-rose-500 font-bold";
-      });
+      .catch(() => { alert("Error connecting to database. Verify your secret key or password."); });
     }
 
     function switchTab(tabId) {
